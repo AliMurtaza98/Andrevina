@@ -17,7 +17,7 @@ public class Player  {
         public Player (){
 
         }
-
+/*prueba*/
         public int getIntentos() {
             return intentos;
 
