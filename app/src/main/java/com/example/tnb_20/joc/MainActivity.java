@@ -13,12 +13,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-    public int contador=1;
+    public int contador = 1;
     public String name_text = "";
     public static Player jugador = new Player();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,37 +36,43 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 String string = String.valueOf(editText.getText());
-                int num = Integer.parseInt(string);
-                if(num < numrandom){
-                    contador++;
+                if (string.equals("")) {
                     Context context = getApplicationContext();
-                    CharSequence texto = "No. Pon uno mas grande !";
+                    CharSequence texto = "No has introducido un valor !";
                     int duration = Toast.LENGTH_SHORT;
                     Toast toast = Toast.makeText(context, texto, duration);
                     toast.show();
+                } else {
+                    int num = Integer.parseInt(string);
 
-                }
+                    if (num < numrandom) {
+                        contador++;
+                        Context context = getApplicationContext();
+                        CharSequence texto = "No. Pon uno mas grande !";
+                        int duration = Toast.LENGTH_SHORT;
+                        Toast toast = Toast.makeText(context, texto, duration);
+                        toast.show();
 
-                else if(num > numrandom){
-                    contador++;
-                    Context context = getApplicationContext();
-                    CharSequence texto = "No. Pon uno mas pequeño !";
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, texto, duration);
-                    toast.show();
-                }
-
-                else if(num == numrandom){
-                    Context context = getApplicationContext();
-                    CharSequence texto = "Felicidades. Es correcto !\nIntentos: "+contador;
-                    int duration = Toast.LENGTH_SHORT;
-                    Toast toast = Toast.makeText(context, texto, duration);
-                    toast.show();
-                    Dialog();
+                    } else if (num > numrandom) {
+                        contador++;
+                        Context context = getApplicationContext();
+                        CharSequence texto = "No. Pon uno mas pequeño !";
+                        int duration = Toast.LENGTH_SHORT;
+                        Toast toast = Toast.makeText(context, texto, duration);
+                        toast.show();
+                    } else if (num == numrandom) {
+                        Context context = getApplicationContext();
+                        CharSequence texto = "Felicidades. Es correcto !\nIntentos: " + contador;
+                        int duration = Toast.LENGTH_SHORT;
+                        Toast toast = Toast.makeText(context, texto, duration);
+                        toast.show();
+                        Dialog();
+                    }
                 }
             }
         });
     }
+
 
     public void Dialog() {
         Handler handler = new Handler();
@@ -72,9 +82,10 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 openDialog();
             }
-        }, 2000);
+        }, 1500);
     }
-        public void openDialog(){
+
+    public void openDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Your Name");
 
@@ -86,11 +97,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 name_text = input.getText().toString();
-                Intent intent = new Intent(getApplicationContext(),FameActivity.class);
-                Bundle bundle = new Bundle();
+                String FILENAME = "Players_Record.txt";
+                OutputStreamWriter opsw = null;
+                try {
+                    opsw = new OutputStreamWriter(openFileOutput(FILENAME, Context.MODE_APPEND));
+                    opsw.write(name_text+":"+contador);
+                    opsw.append("\r\n");
+                    opsw.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                intent.putExtra("name", name_text);
-                intent.putExtra("intentos",contador);
+                Intent intent = new Intent(getApplicationContext(), FameActivity.class);
                 startActivity(intent);
 
             }
@@ -98,5 +118,11 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    public void onBackPressed() {
+
+        moveTaskToBack(true);
+
+
+    }
 
 }
